@@ -38,4 +38,17 @@ jobs:
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
             sudo docker run -d --name react-container -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
             sudo docker system prune -af
+       - name: Deploy to Server via SSH
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.SSH_HOST }}
+           username: ${{ secrets.SSH_USER }}
+           key: ${{ secrets.SSH_PRIVATE_KEY }}
+           port: 22  # Change if using a different port
+           script: |
+              echo "Connected to server!"
+              cd /var/www/my-app
+              git pull origin main
+              npm install --omit=dev
+              pm2 restart all
 
