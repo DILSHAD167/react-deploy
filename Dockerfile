@@ -1,14 +1,14 @@
 # Use an official Node.js runtime as a parent image
-FROM FROM node:18-alpine AS build
+FROM node:18-alpine AS build
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --production
 
 # Copy the rest of the application
 COPY . .
@@ -16,15 +16,10 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Use nginx to serve the React app
-FROM nginx:alpine
-
-# Copy the built React files
+# Use a lightweight web server to serve the build
+FROM nginx:alpine AS production
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 80
 EXPOSE 80
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
 
