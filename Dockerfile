@@ -1,11 +1,13 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18-alpine AS build
-
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available)
-COPY package*.json ./ 
+# Copy package.json and package-lock.json first to leverage Docker layer caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --omit=dev
+
+# Copy the rest of the application files
+COPY . .
 
 # Install dependencies
 RUN npm install --production
